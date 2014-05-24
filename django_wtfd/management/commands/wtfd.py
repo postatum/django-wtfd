@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import os
 import ast
 
@@ -17,34 +15,31 @@ class Command(BaseCommand):
         """
         Get WTFD_APPS setting from Django settings on init.
         """
-        self.apps = getattr(settings, 'WTFD_APPS', None) or None
+        self.apps = getattr(settings, 'WTFD_APPS', [])
         super(Command, self).__init__(*args, **kwargs)
 
-    def _validate_filename(self, x):
+    def _validate_filename(self, filename):
         """
         Checks filename to only fetch .py files & don't fetch tests.
         """
-        return (
-            x and
-            x.endswith('.py') and
-            not x.startswith('__') and
-            ('test' not in x)
-        )
+        is_pyfile = filename.endswith('.py')
+        not_magic = not filename.startswith('__')
+        not_test = 'test' not in filename
+        return (filename and is_pyfile and not_magic and not_test)
 
     def _valid_path(self, path):
         """
         Check path so it won't contain migrations/tests directories.
         """
-        return (
-            not path.endswith('/migrations') and
-            not path.endswith('/tests')
-        )
+        not_migrations = not path.endswith('/migrations')
+        not_tests = not path.endswith('/tests')
+        return (not_migrations and not_tests)
 
     def collect_filenames(self):
         """
         Collects filenames from self.apps or all the project.
         """
-        if self.apps is None:
+        if not self.apps:
             return self._collect_mod_filenames()
         collected = []
         for app in self.apps:
