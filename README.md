@@ -1,5 +1,4 @@
 django-wtfd
 ===========
 
-Write The F*ing Docs!
-Django library that forces developers to write docstrings.
+wtfd(write the f*ing docs) is a Django library that forces developers to write docstrings.
