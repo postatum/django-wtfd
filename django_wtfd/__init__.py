@@ -1,0 +1,3 @@
+
+class MissingDocstringsException(Exception):
+    pass

@@ -4,18 +4,24 @@ import ast
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
+from django_wtfd import MissingDocstringsException
+
 
 class Command(BaseCommand):
     """
     Parses Django project's modules and checks whether all of them
     have docstrings.
     """
+    EXCLUDES = (
+        'meta',
+    )
 
     def __init__(self, *args, **kwargs):
         """
         Get WTFD_APPS setting from Django settings on init.
         """
         self.apps = getattr(settings, 'WTFD_APPS', [])
+        self.strict_mode = getattr(settings, 'WTFD_STRICT', False)
         self.reports = []
         super(Command, self).__init__(*args, **kwargs)
 
@@ -60,6 +66,27 @@ class Command(BaseCommand):
             collected += [os.path.join(root, f) for f in filenames]
         return collected
 
+    def _valid_node(self, node):
+        """
+        Checks if a node is either class or func and if it
+        should be excluded from checks.
+        """
+        if not isinstance(node, (ast.ClassDef, ast.FunctionDef)):
+            return False
+        magic_method = node.name.startswith('__')
+        in_excluded = node.name.lower() in self.EXCLUDES
+        if magic_method or in_excluded:
+            return False
+        return True
+
+    def _store_report(self, node, file_path):
+        """
+        Reports missing docstrings on a node.
+        """
+        schema = '\033[94m{}\033[0m \033[95m{}\033[0m line {}'
+        report = schema.format(node.name, file_path, unicode(node.lineno))
+        self.reports.append(report)
+
     def check_docstrings(self, file_path):
         """
         Parses the file located on :file_path: and
@@ -70,23 +97,35 @@ class Command(BaseCommand):
             f_content = f.read()
         syntax_tree = ast.parse(f_content)
 
-        schema = 'Missing docstrings: {} ({}, line {})'
-
         for node in ast.walk(syntax_tree):
-            if not isinstance(node, (ast.ClassDef, ast.FunctionDef)):
+            if not self._valid_node(node):
                 continue
             doc = ast.get_docstring(node)
             doc = None if doc is None else doc.strip()
-            if doc:
-                continue
-            report = schema.format(node.name, file_path, unicode(node.lineno))
-            print report
-            self.reports.append(report)
+            if not doc:
+                self._store_report(node, file_path)
+
+    def report_missing_docstrings(self):
+        """
+        Prints or raises report on missing docstrings.
+        WTFD_STRICT == True  => Raises
+        WTFD_STRICT == False => Prints
+        """
+        if not any(self.reports):
+            return
+        traceback = '\n'.join(self.reports)
+        if self.strict_mode:
+            raise MissingDocstringsException(traceback)
+        print '\033[91mMissing docstrings:\033[0m'
+        print traceback
 
     def handle(self, *args, **options):
         """
         High-level logic. Calls other methods.
         """
         files = self.collect_filenames()
+
         for file_path in files:
             self.check_docstrings(file_path)
+
+        self.report_missing_docstrings()
