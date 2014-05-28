@@ -36,8 +36,6 @@ class WTFDCommandTestCase(TestCase):
         self.assertTrue(self.cmd._validate_filename('file.py'))
         # Not python
         self.assertFalse(self.cmd._validate_filename('file.jpg'))
-        # Filenames that start with __
-        self.assertFalse(self.cmd._validate_filename('__init__.py'))
         # Tests
         self.assertFalse(self.cmd._validate_filename('test.py'))
         self.assertFalse(self.cmd._validate_filename('models_tests.py'))

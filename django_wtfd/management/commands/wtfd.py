@@ -30,9 +30,8 @@ class Command(BaseCommand):
         Checks filename to only fetch .py files & don't fetch tests.
         """
         is_pyfile = filename.endswith('.py')
-        not_magic = not filename.startswith('__')
         not_test = 'test' not in filename
-        return (filename and is_pyfile and not_magic and not_test)
+        return (filename and is_pyfile and not_test)
 
     def _valid_path(self, path):
         """
@@ -128,7 +127,6 @@ class Command(BaseCommand):
         High-level logic. Calls other methods.
         """
         files = self.collect_filenames()
-
         for file_path in files:
             self.check_docstrings(file_path)
 
