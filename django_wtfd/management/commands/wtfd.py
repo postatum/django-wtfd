@@ -4,7 +4,7 @@ import ast
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from django_wtfd import MissingDocstringsException
+from ... import MissingDocstringsException
 
 
 class Command(BaseCommand):
@@ -50,7 +50,11 @@ class Command(BaseCommand):
             return self._collect_mod_filenames()
         collected = []
         for app in self.apps:
-            module = __import__(app.split('.')[-1])
+            try:
+                module = __import__(app.split('.')[-1])
+            except ImportError:
+                print 'Skipping not valid app: {}'.format(app)
+                continue
             collected += self._collect_mod_filenames(module.__path__[0])
         return collected
 
