@@ -16,6 +16,7 @@ class Command(BaseCommand):
         Get WTFD_APPS setting from Django settings on init.
         """
         self.apps = getattr(settings, 'WTFD_APPS', [])
+        self.reports = []
         super(Command, self).__init__(*args, **kwargs)
 
     def _validate_filename(self, filename):
@@ -59,9 +60,33 @@ class Command(BaseCommand):
             collected += [os.path.join(root, f) for f in filenames]
         return collected
 
+    def check_docstrings(self, file_path):
+        """
+        Parses the file located on :file_path: and
+        prints a report if any class or method is missing
+        docstringsin in it.
+        """
+        with open(file_path) as f:
+            f_content = f.read()
+        syntax_tree = ast.parse(f_content)
+
+        schema = 'Missing docstrings: {} ({}, line {})'
+
+        for node in ast.walk(syntax_tree):
+            if not isinstance(node, (ast.ClassDef, ast.FunctionDef)):
+                continue
+            doc = ast.get_docstring(node)
+            doc = None if doc is None else doc.strip()
+            if doc:
+                continue
+            report = schema.format(node.name, file_path, unicode(node.lineno))
+            print report
+            self.reports.append(report)
+
     def handle(self, *args, **options):
         """
         High-level logic. Calls other methods.
         """
-        filenames = self.collect_filenames()
-        print filenames
+        files = self.collect_filenames()
+        for file_path in files:
+            self.check_docstrings(file_path)
