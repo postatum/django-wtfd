@@ -4,6 +4,7 @@ from django.test.utils import override_settings
 from mock import patch, Mock
 
 from .management.commands.wtfd import Command
+from . import MissingDocstringsException
 
 
 TEST_APP_NAME = 'test_app'
@@ -93,3 +94,35 @@ class WTFDCommandTestCase(TestCase):
         self.assertEqual(self.cmd.reports, [])
         self.cmd._store_report(node, '/tmp/')
         self.assertEqual(len(self.cmd.reports), 1)
+
+    def test_check_docstrings_syntax(self):
+        # TODO: Write more sane test.
+        filename = self.cmd._collect_mod_filenames()[0]
+        self.cmd.check_docstrings(filename)
+
+    def test_report_missing_docstrings_no_reports(self):
+        self.cmd.strict_mode = True
+        self.cmd.reports = []
+        try:
+            self.cmd.report_missing_docstrings()
+        except MissingDocstringsException:
+            self.fail("report_missing_docstrings() raised "
+                      "MissingDocstringsException unexpectedly!")
+
+    def test_report_missing_docstrings_reports(self):
+        self.cmd.strict_mode = True
+        self.cmd.reports = ['asd']
+        self.assertRaises(
+            MissingDocstringsException,
+            self.cmd.report_missing_docstrings,
+        )
+
+    @patch('django_wtfd.management.commands.wtfd.Command.collect_filenames')
+    @patch('django_wtfd.management.commands.wtfd.Command.check_docstrings')
+    @patch('django_wtfd.management.commands.wtfd.Command.report_missing_docstrings')
+    def test_handle(self, mock_report, mock_check, mock_collect):
+        mock_collect.return_value = ['asd']
+        self.cmd.handle()
+        mock_collect.assert_called_once_with()
+        mock_check.assert_called_once_with('asd')
+        mock_report.assert_called_once_with()
