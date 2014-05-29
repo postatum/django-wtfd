@@ -45,6 +45,7 @@ class Command(BaseCommand):
         """
         Collects filenames from self.apps or all the project.
         """
+        print 'Collecting filenames'
         if not self.apps:
             return self._collect_mod_filenames()
         collected = []
@@ -115,6 +116,7 @@ class Command(BaseCommand):
         WTFD_STRICT == False => Prints
         """
         if not any(self.reports):
+            print '\033[92mOK\033[0m'
             return
         traceback = '\n'.join(self.reports)
         if self.strict_mode:
@@ -127,6 +129,7 @@ class Command(BaseCommand):
         High-level logic. Calls other methods.
         """
         files = self.collect_filenames()
+        print 'Checking docstrings in found files'
         for file_path in files:
             self.check_docstrings(file_path)
 
