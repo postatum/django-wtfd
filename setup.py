@@ -14,7 +14,7 @@ setup(
     description='Forcing developers to write docstrings.',
     author='Artem Kostiuk',
     author_email='postatum@gmail.com',
-    long_description=open('README.md', 'r').read(),
+    long_description='Forcing developers to write docstrings.',
     url='https://github.com/postatum/django-wtfd',
     download_url = 'https://github.com/postatum/django-wtfd/tarball/0.1.1',
     packages=[
