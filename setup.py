@@ -10,13 +10,13 @@ except ImportError:
 
 setup(
     name='django_wtfd',
-    version='0.1.1',
+    version='0.1.2',
     description='Forcing developers to write docstrings.',
     author='Artem Kostiuk',
     author_email='postatum@gmail.com',
     long_description='Forcing developers to write docstrings.',
     url='https://github.com/postatum/django-wtfd',
-    download_url = 'https://github.com/postatum/django-wtfd/tarball/0.1.1',
+    download_url = 'https://github.com/postatum/django-wtfd/tarball/0.1.2',
     packages=[
         'django_wtfd',
         'django_wtfd.management',
