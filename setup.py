@@ -22,7 +22,7 @@ setup(
         'django_wtfd.management',
         'django_wtfd.management.commands',
     ],
-    install_requires=['common']
+    install_requires=['common'],
     dependency_links=[
         'git+https://github.com/Bettor/common.git@master#egg=common',
     ],
