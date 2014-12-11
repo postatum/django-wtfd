@@ -22,9 +22,9 @@ setup(
         'django_wtfd.management',
         'django_wtfd.management.commands',
     ],
-    install_requires=['common'],
+    install_requires=['bettor_admin'],
     dependency_links=[
-        'git+https://github.com/Bettor/common.git@master#egg=common',
+        'git+https://github.com/Bettor/bettor_admin@master#egg=bettor_admin',
     ],
     keywords = ['docs', 'docstrings'],
     classifiers = [],
