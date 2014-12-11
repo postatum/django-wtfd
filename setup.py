@@ -25,7 +25,7 @@ setup(
     ],
     dependency_links=[
         'git+https://github.com/Bettor/common.git@master#egg=common',
-    ]
+    ],
     keywords = ['docs', 'docstrings'],
     classifiers = [],
     zip_safe=False,
