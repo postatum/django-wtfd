@@ -21,7 +21,11 @@ setup(
         'django_wtfd',
         'django_wtfd.management',
         'django_wtfd.management.commands',
+        'common',
     ],
+    dependency_links=[
+        'git+https://github.com/Bettor/common.git@master#egg=common',
+    ]
     keywords = ['docs', 'docstrings'],
     classifiers = [],
     zip_safe=False,
